@@ -1,0 +1,40 @@
+import pandas as pd
+import numpy as np
+
+diabetes_table = pd.read_csv('diabetes.csv') 
+
+#general info
+print(diabetes_table.head())
+print(diabetes_table.info())
+
+#number of columns
+print(len(diabetes_table.columns))
+
+#number of rows
+print(len(diabetes_table))
+
+#null_values
+print(diabetes_table.isnull().sum())
+
+#perform summary statistic
+print(diabetes_table.describe())
+
+# Output von describe analysiert -> 0-Werte bei Glucose, BloodPresure, SkinThickness, Insulin & BMI müssen Messfehler/fehlende Werte sein
+# zu 8.: Insulin Wert von 846 wirkt im Vgl zu den anderen Werte auch sehr unwahrscheinlich
+
+#0-Werte transformieren
+diabetes_table[['Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI']] = diabetes_table[['Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI']].replace(0, np.nan)
+print(diabetes_table.isnull().sum())
+
+#alle leeren Einträge ausgeben
+diabetes_table[diabetes_table.isnull().any(axis=1)].to_csv('NullWertÜbersicht.csv')
+
+#-> häufig fehlen SkinThickness,Insulin zusammen
+print(diabetes_table.info())
+
+#rausfinden, warum Outcome type object
+print(diabetes_table['Outcome'].unique())
+diabetes_table['Outcome'] = diabetes_table['Outcome'].replace('O', 0).replace('1', 1).replace('0', 0)
+
+#alternativer Ansatz -> 0-Werte mit Median erstetzen
+diabetes_table[['Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI']] = diabetes_table[['Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI']].replace(0, np.median)
