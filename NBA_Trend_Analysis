@@ -1,0 +1,80 @@
+import pandas as pd
+import numpy as np
+from scipy.stats import pearsonr, chi2_contingency
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+nba_games = pd.read_csv('nba_games.csv')
+np.set_printoptions(suppress=True, precision = 2)
+#print(nba_games.head())
+
+#creating subsets
+nba_2010 = nba_games[nba_games.year_id == 2010]
+nba_2014 = nba_games[nba_games.year_id == 2014]
+
+#datasets from 2010
+knicks_pts_10 = nba_2010[nba_2010.fran_id == 'Knicks'].pts
+nets_pts_10 = nba_2010[nba_2010.fran_id == 'Nets'].pts
+
+def task2():
+    diff_means_2010 = knicks_pts_10.mean() - nets_pts_10.mean()
+    print(diff_means_2010)
+
+#overlapping histogramms points per game 2010
+def task3():
+    plt.hist(knicks_pts_10, color='orange', label='Knicks 2010', density=True, alpha=0.5)
+    plt.hist(nets_pts_10, color='black', label= 'Nets 2010', density=True, alpha = 0.5)
+    plt.legend()
+    plt.show()
+
+#same procedure for 2014
+def task4():
+    knicks_pts_14 = nba_2014[nba_2014.fran_id == 'Knicks'].pts
+    nets_pts_14 = nba_2014[nba_2014.fran_id == 'Nets'].pts
+    diff_means_2014 = knicks_pts_14.mean() - nets_pts_14.mean()
+    print(diff_means_2014)
+    plt.hist(knicks_pts_14, color='orange',label='Knicks 2014', density=True,alpha=0.5)
+    plt.hist(nets_pts_14, color='black', label='Nets 2014', density=True,alpha=0.5)
+    plt.legend()
+    plt.show()
+
+#Focus on 2010 Data from now on
+
+#Boxplot for each time and points scored
+def task5():
+    sns.boxplot(data=nba_2010, x='fran_id', y='pts')
+    plt.show()
+
+def task6():
+#investigate wether teams at home win more often
+    location_result_freq = pd.crosstab(nba_2010.game_result, nba_2010.game_location)
+    print(location_result_freq)
+    return location_result_freq
+
+def task7(freq_table, db):
+    location_result_prop = freq_table/len(db)
+    print(location_result_prop)
+
+#chi2 and expected contingency table
+def task8(freq_table):
+    chi2, pval, dof, expected = chi2_contingency(freq_table)
+    print(np.round(expected))
+    print(chi2)
+
+#covariance between forecast and point_diff to investigate if teams with higher forecast tend to win more games
+def task9():
+    cov_mat_forecast_point_diff = np.cov(nba_2010.forecast,nba_2010.point_diff)
+    print(cov_mat_forecast_point_diff)
+
+#correlation between forecast and point_diff
+def task10():
+    corr_forecast_point_diff, p = pearsonr(nba_2010.forecast, nba_2010.point_diff)
+    print(corr_forecast_point_diff)
+
+#scatter plot for visualization
+def task11():
+    plt.scatter(x = nba_2010.forecast, y = nba_2010.point_diff)
+    plt.xlabel("538's Forecast")
+    plt.ylabel('Game Outcome')
+    plt.show()
+
