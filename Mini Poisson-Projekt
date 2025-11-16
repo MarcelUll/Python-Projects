@@ -1,0 +1,22 @@
+import scipy.stats as stats
+import numpy as np
+
+#Poisson-Verteilung mit Lambda = 7
+lam = 7
+prob_exact_7 = stats.poisson.pmf(7,lam)
+prob_fewer_or_4 = stats.poisson.cdf(4,lam)
+prob_more_than_9 = 1 - stats.poisson.cdf(9,lam)
+
+year_defects = stats.poisson.rvs(lam, size = 365)
+print(year_defects[range(20)])
+
+expected_total_defects = 7 * 365
+print(expected_total_defects)
+total_defects = sum(year_defects)
+print(total_defects)
+avg_defects = total_defects/365
+print(avg_defects)
+
+max_defects = np.max(year_defects)
+prob_max_defects = stats.poisson.pmf(max_defects, lam)
+print(prob_max_defects)
