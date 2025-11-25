@@ -1,0 +1,70 @@
+# Load libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import statsmodels.api as sm
+import codecademylib3
+
+# Read in the data
+codecademy = pd.read_csv('codecademy.csv')
+
+# Print the first five rows
+print(codecademy.head())
+# Create a scatter plot of score vs completed
+plt.scatter('score', 'completed', data = codecademy)
+# Show then clear plot
+plt.show() # Show the plot
+plt.clf() # Clear the plot
+
+# Fit a linear regression to predict score based on prior lessons completed
+model = sm.OLS.from_formula('score ~ completed', data=codecademy)
+results = model.fit()
+print(results.params)
+# Intercept interpretation:
+# Without completing any Lesson, the expected score is 13.21
+# Slope interpretation:
+# With every LEsson Completed, the score is expected to increase by 1.31
+# Plot the scatter plot with the line on top
+plt.scatter(y = 'score', x = 'completed', data = codecademy)
+plt.plot(codecademy.completed, results.params[0] + results.params[1]*codecademy.completed)
+# Show then clear plot
+plt.show() # Show the plot
+plt.clf() # Clear the plot
+
+# Predict score for learner who has completed 20 prior lessons
+new_data = {'completed':[20]}
+prediction = results.predict(new_data)
+print(prediction)
+# Calculate fitted values
+fitted_values = results.predict(codecademy)
+# Calculate residuals
+residuals = codecademy.score - fitted_values
+# Check normality assumption
+plt.hist(residuals)
+plt.show() # Show the plot
+plt.clf() # Clear the plot
+
+# Check homoscedasticity assumption
+plt.scatter(x = fitted_values, y = residuals)
+plt.show() # Show the plot
+plt.clf() # Clear the plot
+
+
+# Create a boxplot of score vs lesson
+sns.boxplot(x = 'lesson', y = 'score', data = codecademy)
+# Show then clear plot
+plt.show()
+plt.clf()
+# Fit a linear regression to predict score based on which lesson they took
+model2 = sm.OLS.from_formula('score ~ lesson', data = codecademy)
+result = model2.fit()
+print(result.params)
+# Calculate and print the group means and mean difference (for comparison)
+mean_score_a = np.mean(codecademy.score[codecademy.lesson == 'Lesson A'])
+mean_score_b = np.mean(codecademy.score[codecademy.lesson == 'Lesson B'])
+mean_difference = mean_score_a - mean_score_b
+print(mean_difference)
+# Use `sns.lmplot()` to plot `score` vs. `completed` colored by `lesson`
+sns.lmplot(x = 'completed', y = 'score', hue = 'lesson', data = codecademy)
+plt.show()
