@@ -1,0 +1,84 @@
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import statsmodels
+import matplotlib.pyplot as plt
+import math
+
+#read in data
+db = pd.read_csv('flight.csv')
+print(db.head())
+
+#more detailed coach-price information
+coach_price_mean = np.mean(db['coach_price'])
+coach_price_min = np.min(db['coach_price'])
+coach_price_max = np.max(db['coach_price'])
+print(f'Coach Price Overview = Average Price:{coach_price_mean}, Lowest Price:{coach_price_min}, Highest Price:{coach_price_max}')
+plt.boxplot(db['coach_price'])
+plt.ylabel('Ticket Price')
+plt.show()
+plt.clf()
+
+#looking into price for coach flights with flighttime over 8 hours
+coach_price_mean_8h = np.mean(db.loc[db['hours'] >= 8, 'coach_price'])
+coach_price_min_8h = np.min(db.loc[db['hours'] >= 8, 'coach_price'])
+coach_price_max_8h = np.max(db.loc[db['hours'] >= 8, 'coach_price'])
+print(f'Coach Price Overview for Flights over 8 hours = Average Price:{coach_price_mean_8h}, Lowest Price:{coach_price_min_8h}, Highest Price:{coach_price_max_8h}')
+sns.histplot(db.loc[db['hours'] >= 8, 'coach_price'])
+plt.title('Overview of Prices (Coach) for Flights over 8h')
+plt.show()
+plt.clf()
+
+#insight on flight delay 
+delay_times = db['delay'].tolist()
+print(np.max(delay_times))
+sns.boxplot(x='delay', data=db)
+ax = plt.subplot()
+ax.set_xticks([x*3 for x in range(150)])
+#die größten outlier werden ignoriert
+plt.axis([0,65,-1,1])
+plt.show()
+plt.clf()
+
+delay_over_60_min = [time > 60 for time in delay_times]
+percentage_long_delay = (sum(delay_over_60_min) / len(delay_times))*100
+print(f'Propability for a long delay: {percentage_long_delay}')
+
+#correlation between coach and first-class prices
+perc = 0.1
+flight_sub = db.sample(n = int(db.shape[0]*perc))
+
+sns.lmplot(x = "coach_price", y = "firstclass_price", data = flight_sub, line_kws={'color': 'black'}, lowess=True)
+plt.show()
+plt.clf()
+
+#which inflight features have a big impact on prices
+# Inflight Meals
+sns.histplot(db, x = "coach_price", hue = db.inflight_meal)
+plt.show()
+plt.clf()
+
+# Inflight Entertainment
+sns.histplot(db, x = "coach_price", hue = db.inflight_entertainment)
+plt.show()
+plt.clf()
+
+# Inflight WiFi
+sns.histplot(db, x = "coach_price", hue = db.inflight_wifi)
+plt.show()
+plt.clf()
+
+#chance in number of passengers in reagrd of length of flight
+sns.lmplot(x = "hours", y = "passengers", data = flight_sub, x_jitter = 0.25, scatter_kws={"s": 5, "alpha":0.2}, fit_reg = False)
+plt.show()
+plt.clf()
+
+#price comparison including weekends & weekdays
+sns.scatterplot(x='coach_price', y='firstclass_price', hue='weekend', palette='bright', data = db)
+plt.show()
+plt.clf()
+
+#coach_price difference between redeyes
+sns.boxplot(x='coach_price', y='day_of_week', hue='redeye', palette='dark', data = db)
+plt.show()
+plt.clf()
